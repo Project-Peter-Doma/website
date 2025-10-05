@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -11,6 +11,30 @@ interface SearchViewProps {
 
 export default function SearchView({ onSearch }: SearchViewProps) {
   const [domain, setDomain] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
+
+  const staticExamples = ['crypto.ai', 'defi.xyz', 'web3.io', 'nft.art'];
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      try {
+        const response = await fetch('/api/suggestions');
+        if (!response.ok) throw new Error('Failed to fetch suggestions');
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setSuggestions(data.slice(0, 4)); // Take the first 4 unique domains
+        }
+      } catch (error) {
+        console.error('Could not fetch dynamic suggestions, using static examples.', error);
+        // Fallback to static examples is handled by the initial state
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+    
+    fetchSuggestions();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +58,7 @@ export default function SearchView({ onSearch }: SearchViewProps) {
     onSearch(domain);
   };
 
-  const examples = ['crypto.ai', 'defi.xyz', 'web3.io', 'nft.art'];
+  const displaySuggestions = suggestions.length > 0 ? suggestions : staticExamples;
 
   return (
     <div className="section-resource">
@@ -46,7 +70,6 @@ export default function SearchView({ onSearch }: SearchViewProps) {
       </div>
 
       <div className="content-wrapper">
-        {/* Logo & Title */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -66,7 +89,6 @@ export default function SearchView({ onSearch }: SearchViewProps) {
           </p>
         </motion.div>
 
-        {/* Search Box */}
         <motion.form
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -86,25 +108,33 @@ export default function SearchView({ onSearch }: SearchViewProps) {
           </button>
         </motion.form>
 
-        {/* Examples */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
           className="examples-section"
         >
-          <p className="examples-label">Try these examples:</p>
-          <div className="examples-grid">
-            {examples.map((example) => (
-              <button
-                key={example}
-                onClick={() => setDomain(example)}
-                className="example-btn"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
+          {isLoadingSuggestions ? (
+            <p className="examples-label animate-pulse">Fetching latest sales...</p>
+          ) : (
+            <>
+              <p className="examples-label">
+                {suggestions.length > 0 ? "Recently sold on Doma:" : "Try these examples:"}
+              </p>
+              <div className="examples-grid">
+                {displaySuggestions.map((example) => (
+                  <button
+                    key={example}
+                    // This now directly triggers the analysis, which is a better UX
+                    onClick={() => onSearch(example)}
+                    className="example-btn"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </motion.div>
       </div>
 
@@ -266,6 +296,7 @@ export default function SearchView({ onSearch }: SearchViewProps) {
         .examples-section {
           text-align: center;
           margin-top: 1rem;
+          min-height: 60px; /* Reserve space to prevent layout shift */
         }
 
         .examples-label {
@@ -294,6 +325,7 @@ export default function SearchView({ onSearch }: SearchViewProps) {
 
         .example-btn:hover {
           background: rgba(55, 65, 81, 0.5);
+          border-color: #4b5563;
         }
       `}</style>
     </div>
