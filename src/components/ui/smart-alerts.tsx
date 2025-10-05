@@ -1,6 +1,6 @@
 // src/components/ui/smart-alerts.tsx
 "use client";
-
+   
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from './button';
@@ -13,7 +13,7 @@ export const SmartAlerts = ({ domain }: { domain: string }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
+  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || "DomainApeBot";
 
   const handleSubscribe = () => {
     if (!telegramHandle.trim() || !telegramHandle.startsWith('@')) {
@@ -25,25 +25,20 @@ export const SmartAlerts = ({ domain }: { domain: string }) => {
 
     setIsSubmitting(true);
     
-    // In a real app, you would save the mapping of `telegramHandle` to the `domain`
-    // in your database here via an API call.
-    
     setTimeout(() => {
-      // This creates the special link.
-      // It opens Telegram and pre-fills the message box with a unique command.
       const messageText = `/start watch_${domain.replace(/\./g, '_')}_${telegramHandle.replace('@', '')}`;
-      const encodedMessage = encodeURIComponent(messageText);
-      const telegramUrl = `https://t.me/${botUsername}?start=${encodedMessage}`;
+      const encodedPayload = Buffer.from(messageText).toString('base64');
+      const telegramUrl = `https://t.me/${botUsername}?start=${encodedPayload}`;
 
-      // Open the link in a new tab.
       window.open(telegramUrl, '_blank');
 
       setIsSubmitting(false);
       setIsSuccess(true);
+      
       toast.success("Redirecting to Telegram...", {
         description: "Click 'Send' in Telegram to confirm your subscription.",
       });
-    }, 1500); // Simulate API call
+    }, 1500);
   };
 
   if (isSuccess) {
@@ -52,8 +47,9 @@ export const SmartAlerts = ({ domain }: { domain: string }) => {
               <CardContent className="pt-6">
                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
                  <p className="font-semibold text-white">Check Your Telegram!</p>
+                 {/* THIS IS THE CORRECTED LINE */}
                  <p className="text-sm text-zinc-400 mt-2">
-                     Click "Start" or "Send" in the chat with @{botUsername} to activate alerts for {domain}.
+                     You&apos;re all set! Click &apos;Start&apos; or send the message in the chat with **@{botUsername}**.
                  </p>
              </CardContent>
          </Card>
