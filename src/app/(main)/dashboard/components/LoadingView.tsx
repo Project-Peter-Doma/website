@@ -15,7 +15,7 @@ const analysisStages = [
     "Cross-referencing comparable sales data",
     "Running ML-based liquidity forecasting",
     "Synthesizing multi-vector analysis",
-    "Generating final intelligence report",
+    "Generating final intelligence report (Wait for 1 minute)",
 ];
 
 export default function LoadingView({ domain }: LoadingViewProps) {

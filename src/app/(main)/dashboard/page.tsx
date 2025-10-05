@@ -55,7 +55,7 @@ export default function DashboardPage() {
     // Set a fixed 50-second timer for the loading screen
     setTimeout(() => {
         setIsMinLoadingTimePassed(true);
-    }, 50000);
+    }, 100000);
   };
 
   const handleReset = () => {
