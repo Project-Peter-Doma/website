@@ -63,7 +63,7 @@ export default function DashboardView({ report, onReset }: DashboardViewProps) {
     { key: 'traffic', label: 'Traffic', icon: Globe, maxValue: 10 },
     { key: 'brandability', label: 'Brandability', icon: Sparkles, maxValue: 10 },
     { key: 'market_trend', label: 'Market Trend', icon: TrendingUp, maxValue: 10 },
-    { key: 'live_momentum', label: 'Momentum', icon: Zap, maxValue: 10 },
+    { key: 'live_momentum', label: 'Momentum', icon: Zap, maxValue: 100 },
     { key: 'predicted_liquidity', label: 'Predicted Liquidity', icon: Waypoints, maxValue: 10 },
   ];
 
